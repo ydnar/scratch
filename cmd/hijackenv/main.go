@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	_ "runtime"
 	_ "unsafe"
 )
 
@@ -11,12 +12,12 @@ func main() {
 	fmt.Println("environ:", os.Environ())
 }
 
-//go:linkname getenv os.Getenv
-func getenv(key string) string {
-	return "fake"
+//go:linkname getenv runtime.Getenv
+func getenv(key string) (string, bool) {
+	return "fake", true
 }
 
-//go:linkname environ syscall.Environ
+//go:linkname environ runtime.Environ
 func environ() []string {
 	return []string{"USER=fake"}
 }
