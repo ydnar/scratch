@@ -15,14 +15,13 @@ HELLO hello <nil>
 */
 
 import (
-	"fmt"
 	"strings"
 )
 
 func main() {
 	s1 := "hello"
 	s2, err := s1, toUpper(&s1)
-	fmt.Println(s1, s2, err)
+	println(s1, s2, err)
 }
 
 func toUpper(s *string) error {
