@@ -1,4 +1,2 @@
 github.com/go-json-experiment/json v0.0.0-20230922184908-dc36ffcf8533 h1:1SRqDZauC9fz6vMIDLCUOULPNfOnZ0rmvZo8quraoy4=
 github.com/go-json-experiment/json v0.0.0-20230922184908-dc36ffcf8533/go.mod h1:6daplAwHHGbUGib4990V3Il26O0OC4aRyvewaaAihaA=
-github.com/ydnar/scratch/internal v0.0.0-20231109193626-9dca3d7b5f9b h1:XiLJoEMXl570LvV27AZORO3KzkfSARHpxRF88yZ8YtI=
-github.com/ydnar/scratch/internal v0.0.0-20231109193626-9dca3d7b5f9b/go.mod h1:Tmw+m57S3XgsMT9A305uAgOtDWkL2C9cGCiAty64U54=
