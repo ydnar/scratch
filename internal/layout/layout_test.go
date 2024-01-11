@@ -14,10 +14,10 @@ func TestAssumptions(t *testing.T) {
 		u64 uint64
 	}
 	if want, got := uintptr(16), unsafe.Sizeof(v1); want != got {
-		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
+		t.Errorf("expected unsafe.Sizeof(v1) == %d, got %d", want, got)
 	}
 	if want, got := uintptr(8), unsafe.Offsetof(v1.u64); want != got {
-		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, got %d", want, got)
+		t.Errorf("expected unsafe.Offsetof(v1.u64) == %d, got %d", want, got)
 	}
 
 	var v2 struct {
@@ -31,18 +31,34 @@ func TestAssumptions(t *testing.T) {
 		u64 uint64
 	}
 	if want, got := uintptr(16), unsafe.Sizeof(v2); want != got {
-		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
+		t.Errorf("expected unsafe.Sizeof(v2) == %d, got %d", want, got)
 	}
 	if want, got := uintptr(8), unsafe.Offsetof(v2.u64); want != got {
-		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, got %d", want, got)
+		t.Errorf("expected unsafe.Offsetof(v2.u64) == %d, got %d", want, got)
 	}
 
+	// size 1
 	var v3 struct {
-		bool
-		_ [0]uint64
+		_ struct{}
+		b bool // offset 0
 	}
 	if want, got := uintptr(1), unsafe.Sizeof(v3); want != got {
-		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
+		t.Errorf("expected unsafe.Sizeof(v3) == %d, got %d", want, got)
+	}
+	if want, got := uintptr(0), unsafe.Offsetof(v3.b); want != got {
+		t.Errorf("expected unsafe.Offsetof(v3.b) == %d, got %d", want, got)
+	}
+
+	// size 0
+	var v4 struct {
+		_ [0]uint32
+		b bool // offset 0!
+	}
+	if want, got := uintptr(4), unsafe.Sizeof(v4); want != got {
+		t.Errorf("expected unsafe.Sizeof(v4) == %d, got %d", want, got)
+	}
+	if want, got := uintptr(0), unsafe.Offsetof(v4.b); want != got {
+		t.Errorf("expected unsafe.Offsetof(v4.b) == %d, got %d", want, got)
 	}
 }
 
