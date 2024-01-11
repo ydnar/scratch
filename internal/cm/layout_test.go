@@ -1,13 +1,11 @@
 package cm
 
 import (
-	"reflect"
-	"strings"
 	"testing"
 	"unsafe"
 )
 
-func TestAssumptions(t *testing.T) {
+func TestLayoutAssumptions(t *testing.T) {
 	var v1 struct {
 		_   bool
 		_   [0][7]byte
@@ -62,41 +60,88 @@ func TestAssumptions(t *testing.T) {
 	}
 }
 
+func TestVariantLayout(t *testing.T) {
+	// 8 on 64-bit, 4 on 32-bit
+	ptrSize := unsafe.Sizeof(uintptr(0))
+
+	tests := []struct {
+		v      VariantDebug
+		size   uintptr
+		offset uintptr
+	}{
+		{&UnsizedVariant2[struct{}, struct{}]{}, 1, 0},
+		{&UnsizedVariant2[[0]byte, struct{}]{}, 1, 0},
+		{&SizedVariant2[Shape[string], string, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedVariant2[Shape[string], bool, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedVariant2[Shape[string], string, struct{}]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedVariant2[Shape[string], struct{}, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedVariant2[Shape[uint64], uint64, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedVariant2[Shape[uint64], uint32, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedVariant2[Shape[uint64], uint64, uint32]{}, 16, alignOf[uint64]()},
+		{&SizedVariant2[Shape[uint64], uint8, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedVariant2[Shape[uint64], uint64, uint8]{}, 16, alignOf[uint64]()},
+		{&SizedVariant2[Shape[uint32], uint8, uint32]{}, 8, alignOf[uint32]()},
+		{&SizedVariant2[Shape[uint32], uint32, uint8]{}, 8, alignOf[uint32]()},
+		{&SizedVariant2[Shape[[9]byte], [9]byte, uint64]{}, 24, alignOf[uint64]()},
+	}
+
+	for _, tt := range tests {
+		name := typeName(tt.v)
+		t.Run(name, func(t *testing.T) {
+			if got, want := tt.v.Size(), tt.size; got != want {
+				t.Errorf("(%s).Size() == %v, expected %v", name, got, want)
+			}
+			if got, want := tt.v.ValOffset(), tt.offset; got != want {
+				t.Errorf("(%s).ValOffset() == %v, expected %v", name, got, want)
+			}
+		})
+	}
+}
+
 func TestResultLayout(t *testing.T) {
-	var r UnsizedResult[struct{}, struct{}]
-	if want, got := uintptr(1), unsafe.Sizeof(r); want != got {
-		t.Errorf("expected unsafe.Sizeof(UntypedResult) == %d, got %d", want, got)
+	// 8 on 64-bit, 4 on 32-bit
+	ptrSize := unsafe.Sizeof(uintptr(0))
+
+	tests := []struct {
+		r      ResultDebug
+		size   uintptr
+		offset uintptr
+	}{
+		{&UnsizedResult[struct{}, struct{}]{}, 1, 0},
+		{&UnsizedResult[[0]byte, struct{}]{}, 1, 0},
+		{&SizedResult[Shape[string], string, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedResult[Shape[string], bool, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedResult[Shape[string], string, struct{}]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedResult[Shape[string], struct{}, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&SizedResult[Shape[uint64], uint64, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedResult[Shape[uint64], uint32, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedResult[Shape[uint64], uint64, uint32]{}, 16, alignOf[uint64]()},
+		{&SizedResult[Shape[uint64], uint8, uint64]{}, 16, alignOf[uint64]()},
+		{&SizedResult[Shape[uint64], uint64, uint8]{}, 16, alignOf[uint64]()},
+		{&SizedResult[Shape[uint32], uint8, uint32]{}, 8, alignOf[uint32]()},
+		{&SizedResult[Shape[uint32], uint32, uint8]{}, 8, alignOf[uint32]()},
+		{&SizedResult[Shape[[9]byte], [9]byte, uint64]{}, 24, alignOf[uint64]()},
 	}
 
-	// testResultLayout[Shape[struct{}], struct{}, struct{}](t, 1, 1)
-	testResultLayout[Shape[uintptr], uintptr, bool](t, 16, 8)
-	testResultLayout[Shape[uintptr], bool, uintptr](t, 16, 8)
-	testResultLayout[Shape[string], struct{}, string](t, 24, 8)
-	testResultLayout[Shape[string], string, struct{}](t, 24, 8)
-	testResultLayout[Shape[string], string, string](t, 24, 8)
-
-	// Alignment and size
-	testResultLayout[Shape[[7]byte], [7]byte, uint64](t, 16, 8)
+	for _, tt := range tests {
+		name := typeName(tt.r)
+		t.Run(name, func(t *testing.T) {
+			if got, want := tt.r.Size(), tt.size; got != want {
+				t.Errorf("(%s).Size() == %v, expected %v", name, got, want)
+			}
+			if got, want := tt.r.ValOffset(), tt.offset; got != want {
+				t.Errorf("(%s).ValOffset() == %v, expected %v", name, got, want)
+			}
+		})
+	}
 }
 
-func testResultLayout[S Shape[OK] | Shape[Err], OK any, Err any](t *testing.T, size, offset uintptr) {
-	var shape S
-	var ok OK
-	var err Err
-	types := strings.ReplaceAll(typeName(shape)+", "+typeName(ok)+", "+typeName(err), "layout.", "")
-	var r SizedResult[S, OK, Err]
-	if want, got := size, unsafe.Sizeof(r); want != got {
-		t.Errorf("expected unsafe.Sizeof(SizedResult[%s]) == %d, got %d", types, want, got)
-	}
-	if want, got := offset, unsafe.Offsetof(r.v); want != got {
-		t.Errorf("expected unsafe.Offsetof(SizedResult[%s].v) == %d, got %d", types, want, got)
-	}
+func sizePlusAlignOf[T any]() uintptr {
+	var v T
+	return unsafe.Sizeof(v) + unsafe.Alignof(v)
 }
 
-func typeName(v any) string {
-	if t := reflect.TypeOf(v); t.Kind() == reflect.Ptr {
-		return "*" + t.Elem().String()
-	} else {
-		return t.String()
-	}
+func alignOf[T any]() uintptr {
+	var v T
+	return unsafe.Alignof(v)
 }

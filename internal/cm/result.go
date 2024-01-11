@@ -1,17 +1,13 @@
 package cm
 
-import "unsafe"
-
-type Shape[T any] [1]T
-
-type UnsizedResult[OK any, Err any] uint8
-
-func (r UnsizedResult[OK, Err]) IsOK() bool {
-	return r == 0
-}
-
-func (r UnsizedResult[OK, Err]) IsErr() bool {
-	return r == 1
+type Result[OK, Err any] interface {
+	IsOK() bool
+	IsErr() bool // TODO: remove this method everywhere
+	StoreOK(OK)
+	StoreErr(Err)
+	LoadOK() (OK, bool)
+	LoadErr() (Err, bool)
+	Result() (ok OK, err Err, isOK bool)
 }
 
 type OKResult[OK any, Err any] struct {
@@ -26,51 +22,80 @@ type ErrResult[OK any, Err any] struct {
 // Either OK or Err must have non-zero size, e.g. both cannot be struct{} or a zero-length array.
 // For results with two zero-length types, use UnsizedResult.
 type SizedResult[S Shape[OK] | Shape[Err], OK any, Err any] struct {
-	disc uint8
-	v    S
+	v SizedVariant2[S, OK, Err]
 }
 
+// IsOK returns true if r represents the OK value.
 func (r *SizedResult[S, OK, Err]) IsOK() bool {
-	return r.disc == 0
+	return r.v.disc == 0
 }
 
+// IsErr returns true if r represents the error value.
 func (r *SizedResult[S, OK, Err]) IsErr() bool {
-	return r.disc == 1
+	return r.v.disc == 1
 }
 
-func (r *SizedResult[S, OK, Err]) SetOK(ok OK) {
-	r.disc = 0
-	*(*OK)(unsafe.Pointer(&r.v)) = ok
+// StoreOK stores the OK value in r.
+func (r *SizedResult[S, OK, Err]) StoreOK(ok OK) {
+	r.v.Store0(ok)
 }
 
-func (r *SizedResult[S, OK, Err]) SetErr(err Err) {
-	r.disc = 1
-	*(*Err)(unsafe.Pointer(&r.v)) = err
+// StoreErr stores the error value in r.
+func (r *SizedResult[S, OK, Err]) StoreErr(err Err) {
+	r.v.Store1(err)
+}
+
+// LoadOK returns the OK value of r.
+// If r is an error value, then the zero value of OK is returned.
+func (r *SizedResult[S, OK, Err]) LoadOK() (ok OK, isOK bool) {
+	return r.v.Load0()
+}
+
+// LoadErr returns the Err value of r.
+// If r is an OK value, then the zero value of Err is returned.
+func (r *SizedResult[S, OK, Err]) LoadErr() (err Err, isErr bool) {
+	return r.v.Load1()
 }
 
 // Result returns the OK value and error value for r.
 // If r represents an error, then the zero value of OK is returned.
 // If r represents an OK value, then the zero value of Err is returned.
 func (r *SizedResult[S, OK, Err]) Result() (ok OK, err Err, isOK bool) {
-	ok, isOK = r.OK()
-	err, _ = r.Err()
+	ok, isOK = r.LoadOK()
+	err, _ = r.LoadErr()
 	return ok, err, isOK
 }
 
-// OK returns the OK value of r.
-// If r is an error value, then the zero value of OK is returned.
-func (r *SizedResult[S, OK, Err]) OK() (ok OK, isOK bool) {
-	if !r.IsOK() {
-		return ok, false
-	}
-	return *(*OK)(unsafe.Pointer(&r.v)), true
+type UnsizedResult[OK any, Err any] struct {
+	v UnsizedVariant2[OK, Err]
 }
 
-// OK returns the Err value of r.
-// If r is an OK value, then the zero value of Err is returned.
-func (r *SizedResult[S, OK, Err]) Err() (err Err, isErr bool) {
-	if !r.IsErr() {
-		return err, false
-	}
-	return *(*Err)(unsafe.Pointer(&r.v)), true
+// IsOK returns true if r represents the OK value.
+func (r UnsizedResult[OK, Err]) IsOK() bool {
+	return r.v.disc == 0
+}
+
+// IsErr returns true if r represents the error value.
+func (r UnsizedResult[OK, Err]) IsErr() bool {
+	return r.v.disc == 1
+}
+
+// StoreErr stores the OK value in r.
+func (r *UnsizedResult[OK, Err]) StoreOK(ok OK) {
+	r.v.Store0(ok)
+}
+
+// StoreErr stores the error value in r.
+func (r *UnsizedResult[OK, Err]) StoreErr(err Err) {
+	r.v.Store1(err)
+}
+
+// LoadOK returns the OK value of r.
+func (r *UnsizedResult[OK, Err]) LoadOK() (ok OK, isOK bool) {
+	return r.v.Load0()
+}
+
+// LoadErr returns the Err value of r.
+func (r *UnsizedResult[OK, Err]) LoadErr() (err Err, isErr bool) {
+	return r.v.Load1()
 }
