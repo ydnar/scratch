@@ -107,6 +107,8 @@ func TestResultLayout(t *testing.T) {
 		size   uintptr
 		offset uintptr
 	}{
+		{&UntypedResult{}, 1, 0},
+
 		{&UnsizedResult[struct{}, struct{}]{}, 1, 0},
 		{&UnsizedResult[[0]byte, struct{}]{}, 1, 0},
 

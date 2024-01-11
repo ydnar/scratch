@@ -69,3 +69,9 @@ func (r *UnsizedResult[OK, Err]) Result() (ok OK, err Err, isOK bool) {
 	err, _ = r.v.Load1()
 	return ok, err, isOK
 }
+
+// UntypedResult represents an untyped Component Model result, e.g.
+// result or result<_, _>. The OK and Err types are both struct{}.
+type UntypedResult struct {
+	UnsizedResult[struct{}, struct{}]
+}
