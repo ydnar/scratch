@@ -1,4 +1,4 @@
-package alignment
+package layout
 
 import (
 	"reflect"
