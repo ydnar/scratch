@@ -174,6 +174,9 @@ func (r *SizedResult[S, OK, Err]) Err() (err Err, isErr bool) {
 	return *(*Err)(unsafe.Pointer(&r.v)), true
 }
 
+// SizedVariant2 represents a variant with 2 associated types, at least one of which has a non-zero size.
+// Use UnsizedVariant2 if both T0 or T1 are zero-sized.
+// The memory layout will have additional padding if both T0 and T1 are zero-sized.
 type SizedVariant2[Shape, T0, T1 any] struct {
 	disc uint8
 	_    [0]T0
