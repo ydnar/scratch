@@ -2,6 +2,7 @@ package layout
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 	"unsafe"
 )
@@ -12,11 +13,11 @@ func TestAssumptions(t *testing.T) {
 		_   [0][7]byte
 		u64 uint64
 	}
-	if got, want := unsafe.Sizeof(v1), uintptr(16); got != want {
-		t.Errorf("expected unsafe.Sizeof(v) == %d, want %d", got, want)
+	if want, got := uintptr(16), unsafe.Sizeof(v1); want != got {
+		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
 	}
-	if got, want := unsafe.Offsetof(v1.u64), uintptr(8); got != want {
-		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, want %d", got, want)
+	if want, got := uintptr(8), unsafe.Offsetof(v1.u64); want != got {
+		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, got %d", want, got)
 	}
 
 	var v2 struct {
@@ -29,18 +30,26 @@ func TestAssumptions(t *testing.T) {
 		}
 		u64 uint64
 	}
-	if got, want := unsafe.Sizeof(v2), uintptr(16); got != want {
-		t.Errorf("expected unsafe.Sizeof(v) == %d, want %d", got, want)
+	if want, got := uintptr(16), unsafe.Sizeof(v2); want != got {
+		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
 	}
-	if got, want := unsafe.Offsetof(v1.u64), uintptr(8); got != want {
-		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, want %d", got, want)
+	if want, got := uintptr(8), unsafe.Offsetof(v2.u64); want != got {
+		t.Errorf("expected unsafe.Offsetof(v.u64) == %d, got %d", want, got)
+	}
+
+	var v3 struct {
+		bool
+		_ [0]uint64
+	}
+	if want, got := uintptr(1), unsafe.Sizeof(v3); want != got {
+		t.Errorf("expected unsafe.Sizeof(v) == %d, got %d", want, got)
 	}
 }
 
 func TestResultLayout(t *testing.T) {
 	var r UnsizedResult[struct{}, struct{}]
-	if got, want := unsafe.Sizeof(r), uintptr(1); got != want {
-		t.Errorf("expected unsafe.Sizeof(UntypedResult) == %d, want %d", got, want)
+	if want, got := uintptr(1), unsafe.Sizeof(r); want != got {
+		t.Errorf("expected unsafe.Sizeof(UntypedResult) == %d, got %d", want, got)
 	}
 
 	// testResultLayout[Shape[struct{}], struct{}, struct{}](t, 1, 1)
@@ -55,15 +64,16 @@ func TestResultLayout(t *testing.T) {
 }
 
 func testResultLayout[S Shape[OK] | Shape[Err], OK any, Err any](t *testing.T, size, offset uintptr) {
+	var shape S
 	var ok OK
 	var err Err
-	types := typeName(ok) + ", " + typeName(err)
+	types := strings.ReplaceAll(typeName(shape)+", "+typeName(ok)+", "+typeName(err), "layout.", "")
 	var r SizedResult[S, OK, Err]
-	if got, want := unsafe.Sizeof(r), size; got != want {
-		t.Errorf("expected unsafe.Sizeof(Result[%s]) == %d, want %d", types, got, want)
+	if want, got := size, unsafe.Sizeof(r); want != got {
+		t.Errorf("expected unsafe.Sizeof(SizedResult[%s]) == %d, got %d", types, want, got)
 	}
-	if got, want := unsafe.Offsetof(r.v), offset; got != want {
-		t.Errorf("expected unsafe.Offsetof(Result[%s].v) == %d, want %d", types, got, want)
+	if want, got := offset, unsafe.Offsetof(r.v); want != got {
+		t.Errorf("expected unsafe.Offsetof(SizedResult[%s].v) == %d, got %d", types, want, got)
 	}
 }
 
