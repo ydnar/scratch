@@ -10,11 +10,11 @@ type Result[OK, Err any] interface {
 	Result() (ok OK, err Err, isOK bool)
 }
 
-type OKResult[OK any, Err any] struct {
+type OKSizedResult[OK any, Err any] struct {
 	SizedResult[Shape[OK], OK, Err]
 }
 
-type ErrResult[OK any, Err any] struct {
+type ErrSizedResult[OK any, Err any] struct {
 	SizedResult[Shape[Err], OK, Err]
 }
 

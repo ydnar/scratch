@@ -109,6 +109,7 @@ func TestResultLayout(t *testing.T) {
 	}{
 		{&UnsizedResult[struct{}, struct{}]{}, 1, 0},
 		{&UnsizedResult[[0]byte, struct{}]{}, 1, 0},
+
 		{&SizedResult[Shape[string], string, string]{}, sizePlusAlignOf[string](), ptrSize},
 		{&SizedResult[Shape[string], bool, string]{}, sizePlusAlignOf[string](), ptrSize},
 		{&SizedResult[Shape[string], string, struct{}]{}, sizePlusAlignOf[string](), ptrSize},
@@ -121,6 +122,14 @@ func TestResultLayout(t *testing.T) {
 		{&SizedResult[Shape[uint32], uint8, uint32]{}, 8, alignOf[uint32]()},
 		{&SizedResult[Shape[uint32], uint32, uint8]{}, 8, alignOf[uint32]()},
 		{&SizedResult[Shape[[9]byte], [9]byte, uint64]{}, 24, alignOf[uint64]()},
+
+		{&OKSizedResult[string, struct{}]{}, sizePlusAlignOf[string](), ptrSize},
+		{&OKSizedResult[string, bool]{}, sizePlusAlignOf[string](), ptrSize},
+		{&OKSizedResult[[9]byte, uint64]{}, sizePlusAlignOf[string](), alignOf[uint64]()},
+
+		{&ErrSizedResult[struct{}, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&ErrSizedResult[bool, string]{}, sizePlusAlignOf[string](), ptrSize},
+		{&ErrSizedResult[uint64, [9]byte]{}, sizePlusAlignOf[string](), alignOf[uint64]()},
 	}
 
 	for _, tt := range tests {
