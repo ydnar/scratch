@@ -1,15 +1,22 @@
 package cm
 
+// Result is the common interface implemented by result types.
 type Result[OK, Err any] interface {
 	StoreOK(OK)
 	StoreErr(Err)
 	Result() (ok OK, err Err, isOK bool)
 }
 
+// OKSizedResult represents a result sized to hold the OK type.
+// The size of the OK type must be greater than or equal to the size of the Err type.
+// For results with two zero-length types, use UnsizedResult.
 type OKSizedResult[OK any, Err any] struct {
 	SizedResult[Shape[OK], OK, Err]
 }
 
+// ErrSizedResult represents a result sized to hold the Err type.
+// The size of the Err type must be greater than or equal to the size of the OK type.
+// For results with two zero-length types, use UnsizedResult.
 type ErrSizedResult[OK any, Err any] struct {
 	SizedResult[Shape[Err], OK, Err]
 }
