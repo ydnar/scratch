@@ -70,6 +70,12 @@ func (v *UnsizedVariant2[T0, T1]) Load1() (val T1, ok bool) {
 	return load[T1](&v.disc, 0, &v.val)
 }
 
+// UntypedVariant2 represents an untyped Component Model variant of cardinality 2.
+// The associated types are defaulted to struct{}.
+type UntypedVariant2 struct {
+	UnsizedVariant2[struct{}, struct{}]
+}
+
 func store[T any, S any, Disc uint8 | uint16 | uint32](disc *Disc, n Disc, ptr *S, val T) {
 	*(*T)(unsafe.Pointer(ptr)) = val
 	*disc = n
