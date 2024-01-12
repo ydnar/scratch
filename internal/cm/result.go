@@ -2,9 +2,11 @@ package cm
 
 // Result is the common interface implemented by result types.
 type Result[OK, Err any] interface {
-	StoreOK(OK)
-	StoreErr(Err)
-	Result() (ok OK, err Err, isOK bool)
+	IsErr() bool
+	SetOK(OK)
+	SetErr(Err)
+	OK() (ok OK, isOK bool)
+	Err() (err Err, isErr bool)
 }
 
 // OKSizedResult represents a result sized to hold the OK type.
@@ -28,46 +30,62 @@ type SizedResult[S Shape[OK] | Shape[Err], OK any, Err any] struct {
 	v SizedVariant2[S, OK, Err]
 }
 
-// StoreOK stores the OK value in r.
-func (r *SizedResult[S, OK, Err]) StoreOK(ok OK) {
-	r.v.Store0(ok)
+// IsErr returns true if r holds the error value.
+func (r *SizedResult[S, OK, Err]) IsErr() bool {
+	return r.v.V() == 1
 }
 
-// StoreErr stores the error value in r.
-func (r *SizedResult[S, OK, Err]) StoreErr(err Err) {
-	r.v.Store1(err)
+// SetOK stores the OK value in r.
+func (r *SizedResult[S, OK, Err]) SetOK(ok OK) {
+	r.v.Set0(ok)
 }
 
-// Result returns the OK value and error value for r.
+// SetErr stores the error value in r.
+func (r *SizedResult[S, OK, Err]) SetErr(err Err) {
+	r.v.Set1(err)
+}
+
+// OK returns the OK value for r and true if r represents the OK state.
 // If r represents an error, then the zero value of OK is returned.
+func (r *SizedResult[S, OK, Err]) OK() (ok OK, isOK bool) {
+	return r.v.V0()
+}
+
+// Err returns the error value for r and true if r represents the error state.
 // If r represents an OK value, then the zero value of Err is returned.
-func (r *SizedResult[S, OK, Err]) Result() (ok OK, err Err, isOK bool) {
-	ok, isOK = r.v.Load0()
-	err, _ = r.v.Load1()
-	return ok, err, isOK
+func (r *SizedResult[S, OK, Err]) Err() (err Err, isErr bool) {
+	return r.v.V1()
 }
 
 type UnsizedResult[OK any, Err any] struct {
 	v UnsizedVariant2[OK, Err]
 }
 
-// StoreErr stores the OK value in r.
-func (r *UnsizedResult[OK, Err]) StoreOK(ok OK) {
-	r.v.Store0(ok)
+// IsErr returns true if r holds the error value.
+func (r *UnsizedResult[OK, Err]) IsErr() bool {
+	return r.v.V() == 1
 }
 
-// StoreErr stores the error value in r.
-func (r *UnsizedResult[OK, Err]) StoreErr(err Err) {
-	r.v.Store1(err)
+// SetErr stores the OK value in r.
+func (r *UnsizedResult[OK, Err]) SetOK(ok OK) {
+	r.v.Set0(ok)
 }
 
-// Result returns the OK value and error value for r.
+// SetErr stores the error value in r.
+func (r *UnsizedResult[OK, Err]) SetErr(err Err) {
+	r.v.Set1(err)
+}
+
+// OK returns the OK value for r and true if r represents the OK state.
 // If r represents an error, then the zero value of OK is returned.
+func (r *UnsizedResult[OK, Err]) OK() (ok OK, isOK bool) {
+	return r.v.V0()
+}
+
+// Err returns the error value for r and true if r represents the error state.
 // If r represents an OK value, then the zero value of Err is returned.
-func (r *UnsizedResult[OK, Err]) Result() (ok OK, err Err, isOK bool) {
-	ok, isOK = r.v.Load0()
-	err, _ = r.v.Load1()
-	return ok, err, isOK
+func (r *UnsizedResult[OK, Err]) Err() (err Err, isErr bool) {
+	return r.v.V1()
 }
 
 // UntypedResult represents an untyped Component Model result, e.g.

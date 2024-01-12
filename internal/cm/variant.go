@@ -5,11 +5,11 @@ import "unsafe"
 type Shape[T any] [1]T
 
 type Variant2[T0, T1 any] interface {
-	Disc() uint
-	Store0(T0)
-	Store1(T1)
-	Load0() (T0, bool)
-	Load1() (T1, bool)
+	V() uint
+	V0() (T0, bool)
+	V1() (T1, bool)
+	Set0(T0)
+	Set1(T1)
 }
 
 // SizedVariant2 represents a variant with 2 associated types, at least one of which has a non-zero size.
@@ -22,24 +22,24 @@ type SizedVariant2[S Shape[T0] | Shape[T1], T0, T1 any] struct {
 	val  S
 }
 
-func (v *SizedVariant2[S, T0, T1]) Disc() uint {
+func (v *SizedVariant2[S, T0, T1]) V() uint {
 	return uint(v.disc)
 }
 
-func (v *SizedVariant2[S, T0, T1]) Store0(val T0) {
-	store(&v.disc, 0, &v.val, val)
-}
-
-func (v *SizedVariant2[S, T0, T1]) Store1(val T1) {
-	store(&v.disc, 1, &v.val, val)
-}
-
-func (v *SizedVariant2[S, T0, T1]) Load0() (val T0, ok bool) {
+func (v *SizedVariant2[S, T0, T1]) V0() (val T0, ok bool) {
 	return load[T0](&v.disc, 0, &v.val)
 }
 
-func (v *SizedVariant2[S, T0, T1]) Load1() (val T1, ok bool) {
+func (v *SizedVariant2[S, T0, T1]) V1() (val T1, ok bool) {
 	return load[T1](&v.disc, 0, &v.val)
+}
+
+func (v *SizedVariant2[S, T0, T1]) Set0(val T0) {
+	store(&v.disc, 0, &v.val, val)
+}
+
+func (v *SizedVariant2[S, T0, T1]) Set1(val T1) {
+	store(&v.disc, 1, &v.val, val)
 }
 
 // UnsizedVariant2 represents a variant with 2 zero-sized associated types, e.g. struct{} or [0]T.
@@ -50,24 +50,23 @@ type UnsizedVariant2[T0, T1 any] struct {
 	disc uint8
 }
 
-func (v *UnsizedVariant2[T0, T1]) Disc() uint {
+func (v *UnsizedVariant2[T0, T1]) V() uint {
 	return uint(v.disc)
 }
-
-func (v *UnsizedVariant2[T0, T1]) Store0(val T0) {
-	store(&v.disc, 0, &v.val, val)
-}
-
-func (v *UnsizedVariant2[T0, T1]) Store1(val T1) {
-	store(&v.disc, 1, &v.val, val)
-}
-
-func (v *UnsizedVariant2[T0, T1]) Load0() (val T0, ok bool) {
+func (v *UnsizedVariant2[T0, T1]) V0() (val T0, ok bool) {
 	return load[T0](&v.disc, 0, &v.val)
 }
 
-func (v *UnsizedVariant2[T0, T1]) Load1() (val T1, ok bool) {
+func (v *UnsizedVariant2[T0, T1]) V1() (val T1, ok bool) {
 	return load[T1](&v.disc, 0, &v.val)
+}
+
+func (v *UnsizedVariant2[T0, T1]) Set0(val T0) {
+	store(&v.disc, 0, &v.val, val)
+}
+
+func (v *UnsizedVariant2[T0, T1]) Set1(val T1) {
+	store(&v.disc, 1, &v.val, val)
 }
 
 // UntypedVariant2 represents an untyped Component Model variant of cardinality 2.
