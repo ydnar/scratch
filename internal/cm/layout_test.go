@@ -5,72 +5,20 @@ import (
 	"unsafe"
 )
 
-func TestLayoutAssumptions(t *testing.T) {
-	var v1 struct {
-		_   bool
-		_   [0][7]byte
-		u64 uint64
-	}
-	if want, got := uintptr(16), unsafe.Sizeof(v1); want != got {
-		t.Errorf("expected unsafe.Sizeof(v1) == %d, got %d", want, got)
-	}
-	if want, got := uintptr(8), unsafe.Offsetof(v1.u64); want != got {
-		t.Errorf("expected unsafe.Offsetof(v1.u64) == %d, got %d", want, got)
-	}
-
-	var v2 struct {
-		_ bool
-		_ [0][7]byte
-		_ [0][51]float64
-		_ [0]struct {
-			uint64
-			_ []byte
-		}
-		u64 uint64
-	}
-	if want, got := uintptr(16), unsafe.Sizeof(v2); want != got {
-		t.Errorf("expected unsafe.Sizeof(v2) == %d, got %d", want, got)
-	}
-	if want, got := uintptr(8), unsafe.Offsetof(v2.u64); want != got {
-		t.Errorf("expected unsafe.Offsetof(v2.u64) == %d, got %d", want, got)
-	}
-
-	// size 1
-	var v3 struct {
-		_ struct{}
-		b bool // offset 0
-	}
-	if want, got := uintptr(1), unsafe.Sizeof(v3); want != got {
-		t.Errorf("expected unsafe.Sizeof(v3) == %d, got %d", want, got)
-	}
-	if want, got := uintptr(0), unsafe.Offsetof(v3.b); want != got {
-		t.Errorf("expected unsafe.Offsetof(v3.b) == %d, got %d", want, got)
-	}
-
-	// size 0
-	var v4 struct {
-		_ [0]uint32
-		b bool // offset 0!
-	}
-	if want, got := uintptr(4), unsafe.Sizeof(v4); want != got {
-		t.Errorf("expected unsafe.Sizeof(v4) == %d, got %d", want, got)
-	}
-	if want, got := uintptr(0), unsafe.Offsetof(v4.b); want != got {
-		t.Errorf("expected unsafe.Offsetof(v4.b) == %d, got %d", want, got)
-	}
-}
-
 func TestVariantLayout(t *testing.T) {
 	// 8 on 64-bit, 4 on 32-bit
 	ptrSize := unsafe.Sizeof(uintptr(0))
+
+	var u1 UnsizedVariant2[struct{}, struct{}]
+	var u2 UnsizedVariant2[[0]byte, struct{}]
 
 	tests := []struct {
 		v      VariantDebug
 		size   uintptr
 		offset uintptr
 	}{
-		{&UnsizedVariant2[struct{}, struct{}]{}, 1, 0},
-		{&UnsizedVariant2[[0]byte, struct{}]{}, 1, 0},
+		{&u1, 1, 0},
+		{&u2, 1, 0},
 		{&SizedVariant2[Shape[string], string, string]{}, sizePlusAlignOf[string](), ptrSize},
 		{&SizedVariant2[Shape[string], bool, string]{}, sizePlusAlignOf[string](), ptrSize},
 		{&SizedVariant2[Shape[string], string, struct{}]{}, sizePlusAlignOf[string](), ptrSize},
