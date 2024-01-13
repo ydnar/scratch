@@ -1,25 +1,35 @@
 package cm
 
+// Option represents a Component Model option<T> type.
+// The first byte is a bool representing none or some,
+// followed by storage for the associated type T.
 type Option[T any] struct {
-	disc uint8
-	v    T
+	isSome bool
+	v      T
 }
 
+// None returns an Option[T] representing the none value,
+// equivalent to the zero value of Option[T].
+func None[T any]() Option[T] {
+	return Option[T]{}
+}
+
+// Some returns an Option[T] representing the some value.
 func Some[T any](v T) Option[T] {
 	return Option[T]{
-		disc: 1,
-		v:    v,
+		isSome: true,
+		v:      v,
 	}
 }
 
-func None[T any]() Option[T] {
-	return Option[T]{disc: 0}
-}
-
+// None returns true if o represents the none value.
+// None returns false if o represents the some value.
 func (o Option[T]) None() bool {
-	return o.disc == 0
+	return !o.isSome
 }
 
+// Some returns T, true if o represents the some value.
+// Some returns T, false if o represents the none value.
 func (o Option[T]) Some() (T, bool) {
-	return o.v, o.disc == 1
+	return o.v, o.isSome
 }
