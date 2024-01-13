@@ -40,11 +40,11 @@ func (v *UnsizedVariant2[T0, T1]) Size() uintptr {
 }
 
 func (v *UnsizedVariant2[T0, T1]) ValAlign() uintptr {
-	return unsafe.Alignof(v.val)
+	return 0
 }
 
 func (v *UnsizedVariant2[T0, T1]) ValOffset() uintptr {
-	return unsafe.Offsetof(v.val)
+	return 0
 }
 
 // ResultDebug is an interface used in tests to validate layout of result types.
