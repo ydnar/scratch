@@ -60,10 +60,15 @@ func TestFieldAlignment(t *testing.T) {
 	}
 }
 
+// TestBool verifies that Go bool size, alignment, and values are consistent
+// with the Component Model Canonical ABI.
 func TestBool(t *testing.T) {
 	var b bool
 	if got, want := unsafe.Sizeof(b), uintptr(1); got != want {
 		t.Errorf("unsafe.Sizeof(b) == %d, expected %d", got, want)
+	}
+	if got, want := unsafe.Alignof(b), uintptr(1); got != want {
+		t.Errorf("unsafe.Alignof(b) == %d, expected %d", got, want)
 	}
 
 	// uint8(false) == 0
