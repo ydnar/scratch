@@ -61,17 +61,20 @@ func TestFieldAlignment(t *testing.T) {
 }
 
 func TestBool(t *testing.T) {
-	// uint8(false) == 0
 	var b bool
-	i := *(*uint8)(unsafe.Pointer(&b))
-	if got, want := i, uint8(0); got != want {
+	if got, want := unsafe.Sizeof(b), uintptr(1); got != want {
+		t.Errorf("unsafe.Sizeof(b) == %d, expected %d", got, want)
+	}
+
+	// uint8(false) == 0
+	b = false
+	if got, want := *(*uint8)(unsafe.Pointer(&b)), uint8(0); got != want {
 		t.Errorf("uint8(b) == %d, expected %d", got, want)
 	}
 
 	// uint8(true) == 1
 	b = true
-	i = *(*uint8)(unsafe.Pointer(&b))
-	if got, want := i, uint8(1); got != want {
+	if got, want := *(*uint8)(unsafe.Pointer(&b)), uint8(1); got != want {
 		t.Errorf("uint8(b) == %d, expected %d", got, want)
 	}
 
