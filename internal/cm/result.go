@@ -32,7 +32,7 @@ type SizedResult[S Shape[OK] | Shape[Err], OK any, Err any] struct {
 
 // IsErr returns true if r holds the error value.
 func (r *SizedResult[S, OK, Err]) IsErr() bool {
-	return r.v.V() == 1
+	return r.v.isT1
 }
 
 // SetOK stores the OK value in r.
@@ -63,7 +63,7 @@ type UnsizedResult[OK any, Err any] struct {
 
 // IsErr returns true if r holds the error value.
 func (r *UnsizedResult[OK, Err]) IsErr() bool {
-	return r.v.V() == 1
+	return bool(r.v)
 }
 
 // SetErr stores the OK value in r.
