@@ -31,12 +31,3 @@ func main() {
 	}
 	fmt.Printf("file info: %#v\n", info)
 }
-
-func main2() {
-	print("hello world\n")
-	for _, arg := range os.Args {
-		print(arg)
-		print(" ")
-	}
-	print("\n")
-}
