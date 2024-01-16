@@ -9,7 +9,14 @@ import (
 // https://github.com/dgryski/tinygo/tree/dgryski/wasi-preview-2
 
 func main() {
-	fmt.Println("Hello world from WebAssembly!")
+	fmt.Print("Hello world from WebAssembly!\n\n")
+
+	fmt.Println("os.Environ: ")
+	for _, e := range os.Environ() {
+		fmt.Print(e, "\n")
+	}
+	fmt.Print("\n\n")
+
 	fmt.Print("os.Args: ")
 	for _, arg := range os.Args {
 		fmt.Print(arg, " ")
