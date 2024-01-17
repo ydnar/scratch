@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 // This requires TinyGo with WASI Preview 2 support
@@ -10,6 +11,11 @@ import (
 
 func main() {
 	fmt.Print("Hello world from WebAssembly!\n\n")
+
+	start := time.Now()
+	fmt.Printf("time.Now: %v\n", start)
+	end := time.Now()
+	fmt.Printf("elapsed: %v\n\n", end.Sub(start))
 
 	fmt.Println("os.Environ: ")
 	for _, e := range os.Environ() {
