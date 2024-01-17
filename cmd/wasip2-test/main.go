@@ -14,6 +14,8 @@ func main() {
 
 	start := time.Now()
 	fmt.Printf("time.Now: %v\n", start)
+	fmt.Println("sleeping for 10ms...")
+	time.Sleep(10 * time.Millisecond)
 	end := time.Now()
 	fmt.Printf("elapsed: %v\n\n", end.Sub(start))
 
