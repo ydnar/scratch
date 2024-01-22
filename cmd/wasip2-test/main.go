@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	_ "net/http"
 	"os"
 	"time"
@@ -42,8 +43,23 @@ func main() {
 	defer f.Close()
 	info, err := f.Stat()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "File.Stat(): %v", filename, err)
+		fmt.Fprintf(os.Stderr, "File.Stat(): %v", err)
 		return
 	}
 	fmt.Printf("file info: %#v\n", info)
+	fmt.Print("\n\n")
+
+	var buf [256]byte
+	for {
+		b := buf[:]
+		n, err := os.Stdin.Read(b)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+		}
+		b = b[:n]
+		fmt.Print(string(b))
+	}
+	fmt.Print("\n\n")
 }
