@@ -21,6 +21,13 @@ func main() {
 	end := time.Now()
 	fmt.Printf("elapsed: %v\n\n", end.Sub(start))
 
+	// wd, err := os.Getwd()
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "os.Getwd(): %v", err)
+	// 	return
+	// }
+	// fmt.Printf("os.Getwd: %s\n", wd)
+
 	fmt.Println("os.Environ: ")
 	for _, e := range os.Environ() {
 		fmt.Print(e, "\n")
