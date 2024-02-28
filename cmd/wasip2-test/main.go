@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	_ "net/http"
 	"os"
 	"time"
 )
