@@ -76,4 +76,16 @@ func main() {
 		fmt.Print(string(b))
 	}
 	fmt.Print("\n\n")
+
+	// Test out math and intrinsics
+	fmt.Println("math.Ceil(1.5) =", math.Ceil(1.5))
+	fmt.Println("math.Floor(1.5) =", math.Floor(1.5))
+	fmt.Println("math.Log(1) =", math.Log(1))
+	fmt.Println("math.Log(1) =", math.Log(1))
+	fmt.Println("math.Sqrt(100) =", math.Sqrt(100))
+	fmt.Println("math.Trunc(99.9) =", math.Trunc(99.9))
+
+	// No Wasm intrinsics, but should compile OK
+	fmt.Println("math.Exp2(1337) =", math.Exp2(1337))
+	fmt.Println("math.Sin(math.Pi) =", math.Sin(math.Pi))
 }
