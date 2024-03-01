@@ -75,10 +75,11 @@ func main() {
 		b = b[:n]
 		fmt.Print(string(b))
 	}
-	fmt.Print("\n\n")
+	fmt.Println()
 
 	// Test out math and intrinsics
 	fmt.Println("math.Ceil(1.5) =", math.Ceil(1.5))
+	fmt.Println("math.Abs(-1000) =", math.Abs(-1000))
 	fmt.Println("math.Floor(1.5) =", math.Floor(1.5))
 	fmt.Println("math.Log(1) =", math.Log(1))
 	fmt.Println("math.Log(1) =", math.Log(1))
