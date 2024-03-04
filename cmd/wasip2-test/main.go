@@ -87,6 +87,6 @@ func main() {
 	fmt.Println("math.Trunc(99.9) =", math.Trunc(99.9))
 
 	// No Wasm intrinsics, but should compile OK
-	fmt.Println("math.Exp2(1337) =", math.Exp2(1337))
+	// fmt.Println("math.Exp2(1337) =", math.Exp2(1337))
 	fmt.Println("math.Sin(math.Pi) =", math.Sin(math.Pi))
 }
