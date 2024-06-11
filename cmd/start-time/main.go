@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 	"unsafe"
-	_ "unsafe"
 )
 
 func main() {
