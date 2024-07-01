@@ -77,6 +77,15 @@ func main() {
 	}
 	fmt.Println()
 
+	sym := "symlink"
+	dest, err := os.Readlink(sym)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "os.Readlink(%q): %v", sym, err)
+		return
+	}
+	fmt.Fprintf(os.Stderr, "os.Readlink(%q): %s\n", sym, dest)
+	fmt.Print("\n")
+
 	// Test out math and intrinsics
 	fmt.Println("math.Ceil(1.5) =", math.Ceil(1.5))
 	fmt.Println("math.Abs(-1000) =", math.Abs(-1000))
