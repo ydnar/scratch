@@ -2,10 +2,23 @@
 
 package main
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
-func GoroutineID() uintptr {
-	return uintptr(currentTask())
+var (
+	goroutineID  int64
+	goroutineIDs = make(map[uintptr]int64)
+)
+
+func GoroutineID() int64 {
+	task := uintptr(currentTask())
+	if id, ok := goroutineIDs[task]; ok {
+		return id
+	}
+	goroutineID++
+	goroutineIDs[task] = goroutineID
+	return goroutineIDs[task]
 }
 
 //go:linkname currentTask internal/task.Current
