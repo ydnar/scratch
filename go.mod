@@ -1,5 +1,7 @@
 module github.com/ydnar/scratch
 
-go 1.21.5
+go 1.22
 
-require github.com/go-json-experiment/json v0.0.0-20230922184908-dc36ffcf8533
+toolchain go1.22.4
+
+require github.com/go-json-experiment/json v0.0.0-20240524174822-2d9f40f7385b
