@@ -40,6 +40,10 @@ func main() {
 	}
 	fmt.Print("\n")
 
+	if len(os.Args) < 2 {
+		return
+	}
+
 	filename := os.Args[1]
 	info, err := os.Stat(filename)
 	if err != nil {
